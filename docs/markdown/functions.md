@@ -30,7 +30,9 @@ del_raw_injection : delete raw injection
 
 ### mutation:
 ```
-apply_mutations : apply mutations to an in-memory payload
+new_mutation   : initialise a mutation structure
+del_mutation   : delete a mutation structure
+apply_mutation : apply a mutation to an in-memory payload
 ```
 
 

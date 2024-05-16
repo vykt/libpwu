@@ -282,44 +282,47 @@ int setup_new_thread_payload(int fd_mem, new_thread_setup n_t_setup) {
 	int ret;
     void * thread_func_addr;
 
-	vector mutation_vector;
-	mutation temp_mutation;
+	mutation m;
 	raw_injection r_injection;
 
-	//setup mutation vector
-	ret = new_vector(&mutation_vector, sizeof(mutation));
-	if (ret == -1) return -1;
 
-	//add first mutation for RBP
-	temp_mutation.offset = rbp_offset;
-	memcpy(temp_mutation.mod, &n_t_setup.stack_addr, sizeof(void *));
-	temp_mutation.mod_len = sizeof(void *);
-	ret = vector_add(&mutation_vector, 0, (byte *) &temp_mutation, APPEND_TRUE);
-	if (ret == -1) return -1;
-
-	//add second mutation for RSP
-	temp_mutation.offset = rsp_offset;
-	memcpy(temp_mutation.mod, &n_t_setup.stack_addr, sizeof(void *));
-	temp_mutation.mod_len = sizeof(void *);
-	ret = vector_add(&mutation_vector, 0, (byte *) &temp_mutation, APPEND_TRUE);
-	if (ret == -1) return -1;
-
-	//add third mutation for jump to thread function
-    thread_func_addr = n_t_setup.thread_func_region->start_addr 
-                       + n_t_setup.thread_func_offset;
-	temp_mutation.offset = jmp_offset;
-	memcpy(temp_mutation.mod, &thread_func_addr, sizeof(void *));
-	temp_mutation.mod_len = sizeof(void *);
-	ret = vector_add(&mutation_vector, 0, (byte *) &temp_mutation, APPEND_TRUE);
-	if (ret == -1) return -1;
 
 	//read payload
 	ret = new_raw_injection(&r_injection, n_t_setup.setup_region,
 	                        n_t_setup.setup_offset, new_thread_payload);
 	if (ret == -1) return -1;
 
-	//mutate payload with mutation vector
-	ret = apply_mutations(r_injection.payload, mutation_vector);
+    //initialise mutation structure
+    ret = new_mutation(&m, sizeof(void *));
+    if (ret == -1) return -1;
+
+	//add first mutation for RBP
+	m.offset = rbp_offset;
+	memcpy(m.mod, &n_t_setup.stack_addr, sizeof(void *));
+	m.mod_len = sizeof(void *);
+
+	//mutate payload with RBP mutation
+	ret = apply_mutation(r_injection.payload, &m);
+	if (ret == -1) return -1;
+
+	//add second mutation for RSP
+	m.offset = rsp_offset;
+	memcpy(m.mod, &n_t_setup.stack_addr, sizeof(void *));
+	m.mod_len = sizeof(void *);
+
+	//mutate payload with RSP mutation
+	ret = apply_mutation(r_injection.payload, &m);
+	if (ret == -1) return -1;
+
+	//add third mutation for jump to thread function
+    thread_func_addr = n_t_setup.thread_func_region->start_addr 
+                       + n_t_setup.thread_func_offset;
+	m.offset = jmp_offset;
+	memcpy(m.mod, &thread_func_addr, sizeof(void *));
+	m.mod_len = sizeof(void *);
+
+	//mutate payload with thread function call mutation
+	ret = apply_mutation(r_injection.payload, &m);
 	if (ret == -1) return -1;
 
 	//inject payload into process
@@ -328,8 +331,7 @@ int setup_new_thread_payload(int fd_mem, new_thread_setup n_t_setup) {
 
 	//clean up
 	del_raw_injection(&r_injection);
-	ret = del_vector(&mutation_vector);
-	if (ret == -1) return -1;
+    del_mutation(&m);
 
 	return 0;
 }

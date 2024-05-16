@@ -329,7 +329,7 @@ typedef struct {
 typedef struct {
 
     unsigned int offset;
-    byte mod[32];
+    byte * mod;
     int mod_len;
 
 } mutation;
@@ -337,15 +337,17 @@ typedef struct {
 ```
 
 ### description
-`mutation` is a single mutation applied to a payload by the `apply_mutations()` function, which takes a vector of `mutation` structures.
+`mutation` is a mutation blueprint applied to a payload by the `apply_mutation()` function.
 
 ### elements
-- `offset`  : offset into the payload at which to begin the mutation.
-- `mod[32]` : buffer holding the mutation, up to 32bytes in size;
-- `mod_len` : the real length of the mutation stored in `mod[32]`.
+- `offset`  : offset into the payload at which to begin the mutation, set manually.
+- `mod`     : buffer holding the mutation, allocated by initialiser, set manually;
+- `mod_len` : the real length of the mutation stored in `mod[32]`, set manually.
 
 ### functions
-- `apply_mutations()`
+- `new_mutation()`
+- `del_mutation()`
+- `apply_mutation()`
 
 <br>
 

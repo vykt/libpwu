@@ -165,7 +165,7 @@ typedef struct {
 typedef struct {
 
 	unsigned int offset;
-	byte mod[32];
+	byte * mod;
 	int mod_len; //beware of bounds, i trust you!
 
 } mutation;
@@ -273,7 +273,9 @@ extern int sig_cont(pid_t pid);
 
 // --- PAYLOAD MUTATIONS
 //return 0 on success, -1 on fail
-extern int apply_mutations(byte * payload_buffer, vector mutation_vector);
+extern int new_mutation(mutation * m, size_t buf_size);
+extern void del_mutation(mutation * m);
+extern int apply_mutation(byte * payload_buffer, mutation * m);
 
 
 // --- SYMBOL RESOLVING

@@ -446,7 +446,7 @@ set manually.
 typedef struct {
 
     unsigned int offset;
-    byte mod[32];
+    byte * mod;
     int mod_len;
 
 } mutation;
@@ -454,21 +454,25 @@ typedef struct {
 .fi
 .SS description
 .PP
-\f[V]mutation\f[R] is a single mutation applied to a payload by the
-\f[V]apply_mutations()\f[R] function, which takes a vector of
-\f[V]mutation\f[R] structures.
+\f[V]mutation\f[R] is a mutation blueprint applied to a payload by the
+\f[V]apply_mutation()\f[R] function.
 .SS elements
 .IP \[bu] 2
 \f[V]offset\f[R] : offset into the payload at which to begin the
-mutation.
+mutation, set manually.
 .IP \[bu] 2
-\f[V]mod[32]\f[R] : buffer holding the mutation, up to 32bytes in size;
+\f[V]mod\f[R] : buffer holding the mutation, allocated by initialiser,
+set manually;
 .IP \[bu] 2
 \f[V]mod_len\f[R] : the real length of the mutation stored in
-\f[V]mod[32]\f[R].
+\f[V]mod[32]\f[R], set manually.
 .SS functions
 .IP \[bu] 2
-\f[V]apply_mutations()\f[R]
+\f[V]new_mutation()\f[R]
+.IP \[bu] 2
+\f[V]del_mutation()\f[R]
+.IP \[bu] 2
+\f[V]apply_mutation()\f[R]
 .PP
 .SS sym_resolve
 .IP

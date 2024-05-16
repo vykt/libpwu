@@ -5,6 +5,8 @@
 #include "vector.h"
 
 //external
-int apply_mutations(byte * payload_buffer, vector mutation_vector);
+int new_mutation(mutation * m, size_t buf_size);
+void del_mutation(mutation * m);
+int apply_mutation(byte * payload_buffer, mutation * m);
 
 #endif
