@@ -94,14 +94,16 @@ int build_obj_vector(maps_data * m_data) {
 int read_maps(maps_data * m_data, FILE * maps_stream) {
 
 	int ret;
+    int entry_index;
 	char line[LINE_LEN];
     char * basename_ptr;
 	maps_entry temp_m_entry;
 
 	//while there are entries in /proc/<pid>/maps left to process
-	while(!get_maps_line(line, maps_stream)) {
+	entry_index = 0;
+    while(!get_maps_line(line, maps_stream)) {
 
-		//initiate cave vector, zero out initial values
+		//initiate cave vector, zero out all other initial values
 		ret = new_maps_entry(&temp_m_entry);
 		if (ret == -1) return -1;
 
@@ -112,8 +114,15 @@ int read_maps(maps_data * m_data, FILE * maps_stream) {
 		//store permissions and name of backing file in temporary entry
 		ret = get_perms_name(line, &temp_m_entry.perms, temp_m_entry.pathname);
 		
-		//if there is no pathname for a given entry, set it to tag
-		if (ret == -1) strcpy(temp_m_entry.pathname, "<NO_PATHNAME>");
+		//if there is no pathname for a given entry, set it to <NO_PATHNAME>
+		if (ret == -1) {
+            strcpy(temp_m_entry.pathname, "<NO_PATHNAME>");
+            temp_m_entry.last_pathname_index = m_data->last_pathname_index;
+        //if there is a pathname, then update maps_data's last_pathname_cache with it
+        } else {
+            m_data->last_pathname_index = entry_index;
+            temp_m_entry.last_pathname_index = m_data->last_pathname_index;
+        }
 
         //set the basename
         basename_ptr = strrchr(temp_m_entry.pathname, (int) '/') + 1;
@@ -128,6 +137,8 @@ int read_maps(maps_data * m_data, FILE * maps_stream) {
 						 APPEND_TRUE);
 		if (ret == -1) return -1;
 
+        //increment index
+        entry_index++;
 	}
 
 	//now populate

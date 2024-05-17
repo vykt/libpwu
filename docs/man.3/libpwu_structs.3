@@ -60,6 +60,8 @@ typedef struct {
         void * start_addr;
         void * end_addr;
         unsigned long obj_vector_index;
+        unsinged long obj_index;
+        unsigned long last_pathname_index;
 
         //get_caves()
         vector cave_vector; //cave
@@ -82,6 +84,9 @@ refer to \f[V]proc(5)\f[R].
 \f[V]basename\f[R] : basename of backing file for this segment.
 refer to \f[V]proc(5)\f[R].
 .IP \[bu] 2
+\f[V]last_pathname\f[R] : backing file of the closest previous segment
+with one.
+.IP \[bu] 2
 \f[V]perms\f[R] : permissions for the region, see \f[V]mprotect(2)\f[R]
 for format.
 .IP \[bu] 2
@@ -93,6 +98,13 @@ for format.
 .IP \[bu] 2
 \f[V]object_vector_index\f[R] : index into
 \f[V]maps_data.obj_vector\f[R] for this entry.
+.IP \[bu] 2
+\f[V]obj_index\f[R] : index into \f[V]maps_obj.entry_vector\f[R] for
+this entry\[cq]s \f[V]maps_obj\f[R].
+.IP \[bu] 2
+\f[V]last_pathname_index\f[R] : index into
+\f[V]maps_data.entry_vector\f[R] for closest previous entry with a valid
+backing file.
 .IP \[bu] 2
 \f[V]cave_vector\f[R] : vector of \f[V]cave\f[R] struct.
 .SS functions

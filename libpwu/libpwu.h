@@ -45,21 +45,27 @@ typedef struct {
 //single region in /proc/<pid>/maps
 typedef struct {
 
-        //read_maps()
+        // --- read_maps()
+        
+        //'pathname' field - backing file if present, else region starting address
         char pathname[PATH_MAX];
-        char basename[NAME_MAX];        //points to basename in maps_entry.pathname
+        char basename[NAME_MAX];
+        //'pathname' field of closest previous maps_entry with a present backing file
+        char last_pathname[PATH_MAX];
         byte perms;                     //4 (read) + 2 (write) + 1 (exec)
         
         void * start_addr;
         void * end_addr;
         
-        //allow traversal from maps_entry to parent maps_obj
-        unsigned long obj_vector_index; //index into maps_data.obj_vector
+        //indices for backwards traversal
+        unsigned long obj_vector_index;    //index into maps_data.obj_vector
+        unsigned long obj_index;           //index into maps_obj.entry_vector
+        unsigned long last_pathname_index; //index to closest previous entry with
+                                           //a valid backing file
 
-        //used to resolve symbols in target process in O(1)
-        unsigned long obj_index;        //index into maps_obj.entry_vector
+        // --- get_caves()
 
-        //get_caves()
+        //caves present in this region
         vector cave_vector; //cave
 
 } maps_entry;
@@ -72,7 +78,7 @@ typedef struct {
 
         vector entry_vector; //*maps_entry
 
-        //INTERNAL - index for next maps_entry to associate with this backing object
+        //INTERNAL - used to set index in the next maps_entry when building maps_data
         unsigned long next_entry_index;
 
 } maps_obj;
@@ -82,6 +88,10 @@ typedef struct {
 
         vector obj_vector;   //maps_obj
         vector entry_vector; //maps_entry
+
+        //INTERNAL - stores the index to the closest previous entry with a valid
+        //           backing file, for use 
+        unsigned long last_pathname_index;
 
 } maps_data;
 

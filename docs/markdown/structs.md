@@ -38,6 +38,8 @@ typedef struct {
         void * start_addr;
         void * end_addr;
         unsigned long obj_vector_index;
+        unsinged long obj_index;
+        unsigned long last_pathname_index;
 
         //get_caves()
         vector cave_vector; //cave
@@ -51,10 +53,13 @@ typedef struct {
 ### elements
 - `pathname`            : name of the backing file for this segment. refer to `proc(5)`.
 - `basename`            : basename of backing file for this segment. refer to `proc(5)`.
+- `last_pathname`       : backing file of the closest previous segment with one.
 - `perms`               : permissions for the region, see `mprotect(2)` for format.
 - `start_addr`          : address of the start of this segment in `/proc/<pid>/mem`.
 - `end_addr`            : address of the end of this segment in `/proc\<pid\>/mem`.
 - `object_vector_index` : index into `maps_data.obj_vector` for this entry.
+- `obj_index`           : index into `maps_obj.entry_vector` for this entry's `maps_obj`.
+- `last_pathname_index` : index into `maps_data.entry_vector` for closest previous entry with a valid backing file.
 - `cave_vector`         : vector of `cave` struct.
 
 ### functions
